@@ -1,0 +1,4 @@
+builds/*
+.sentry-native/*
+Build and Run (Simulator).ps1
+build_and_run.sh
