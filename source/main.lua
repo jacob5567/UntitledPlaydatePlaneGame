@@ -6,8 +6,8 @@ local Area = import "area"
 local pd <const> = playdate
 local gfx <const> = pd.graphics
 
-local player = Player:new()
-local area1 = Area:new(400, 240, "assets/simplecloud.png")
+local player = Player.new(120, 200)
+local area1 = Area.new(1000, 1000, "assets/simplecloud.png")
 
 local pd <const> = playdate
 local gfx <const> = pd.graphics

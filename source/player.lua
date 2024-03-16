@@ -7,19 +7,17 @@ local Player = {}
 Player.__index = Player
 
 -- Constructor function
-function Player:new(o)
-    o = o or {
-        center = pd.geometry.point.new(200, 120),
-        base = 15,
-        height = 15,
-        angle = 0,
-        speed = 2,
-        velocity = pd.geometry.vector2D.new(0, 0),
-        maxVelocity = 30,
-        gravity = 0.5
-    }
-    setmetatable(o, self)
-    return o
+function Player.new(x, y)
+    local self = setmetatable({}, Player)
+    self.center = pd.geometry.point.new(x, y)
+    self.base = 15
+    self.height = 15
+    self.angle = 0
+    self.speed = 2
+    self.velocity = pd.geometry.vector2D.new(0, 0)
+    self.maxVelocity = 30
+    self.gravity = 0.5
+    return self
 end
 
 function Player:draw()

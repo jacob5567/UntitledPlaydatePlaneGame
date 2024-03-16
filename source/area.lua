@@ -7,7 +7,7 @@ local Area = {}
 Area.__index = Area
 
 -- Constructor function
-function Area:new(width, height, backgroundImage)
+function Area.new(width, height, backgroundImage)
     local self = setmetatable({}, Area)
     self.width = width
     self.height = height
