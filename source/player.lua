@@ -4,7 +4,9 @@ local gfx <const> = pd.graphics
 
 ---@class Player
 local Player = {}
+Player.__index = Player
 
+-- Constructor function
 function Player:new(o)
     o = o or {
         center = pd.geometry.point.new(200, 120),
@@ -17,7 +19,6 @@ function Player:new(o)
         gravity = 0.5
     }
     setmetatable(o, self)
-    self.__index = self
     return o
 end
 
