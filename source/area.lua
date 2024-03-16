@@ -16,15 +16,19 @@ function Area.new(width, height, backgroundImage)
     return self
 end
 
-function Area:drawBackgroundElements()
+function Area:drawBackgroundElements(camera)
     for i, location in ipairs(self.imageLocations) do
-        self.backgroundImage:draw(location)
+        -- Only draw the background element if it's visible
+        if camera:isPointVisible(location) then
+            local screenLocation = camera:worldToScreen(location)
+            self.backgroundImage:draw(screenLocation)
+        end
     end
 end
 
 function Area:randomlyGenerateBackgroundElements()
     local locations = {}
-    for i = 1, 10 do
+    for i = 1, 100 do
         local x = math.random(0, self.width)
         local y = math.random(0, self.height)
         table.insert(locations, pd.geometry.point.new(x, y))

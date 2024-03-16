@@ -7,9 +7,9 @@ local Player = {}
 Player.__index = Player
 
 -- Constructor function
-function Player.new(x, y)
+function Player.new(centerPoint)
     local self = setmetatable({}, Player)
-    self.center = pd.geometry.point.new(x, y)
+    self.center = centerPoint or pd.geometry.point.new(200, 120)
     self.base = 15
     self.height = 15
     self.angle = 0
@@ -20,7 +20,7 @@ function Player.new(x, y)
     return self
 end
 
-function Player:draw()
+function Player:draw(camera)
     if self.center == nil then
         print("self.center is nil")
         return
@@ -28,11 +28,18 @@ function Player:draw()
     local crankPosition = pd.getCrankPosition()
     self.angle = crankPosition
     gfx.setColor(gfx.kColorBlack)
-    gfx.fillTriangle(self.getTrianglePoints(self.center.x, self.center.y, self.base, self.height, math.rad(self.angle)))
+    -- gfx.fillTriangle(self.getTrianglePoints(self.center, self.base, self.height, math.rad(self.angle)))
+    local globalSpaceTrianglePoints = self.getTrianglePoints(self.center, self.base, self.height, math.rad(self.angle))
+    local trianglePoints = {}
+    for i, point in ipairs(globalSpaceTrianglePoints) do
+        trianglePoints[i] = camera:worldToScreen(point)
+    end
+    gfx.fillTriangle(trianglePoints[1].x, trianglePoints[1].y, trianglePoints[2].x, trianglePoints[2].y,
+        trianglePoints[3].x, trianglePoints[3].y)
     gfx.setColor(gfx.kColorWhite)
-    gfx.drawPixel(self.center.x, self.center.y)
+    gfx.drawPixel(camera:worldToScreen(self.center))
 
-    self:move()
+    self:move(camera)
 end
 
 function Player:doGravity()
@@ -45,39 +52,40 @@ function Player:accelerate()
     end
 end
 
-function Player:move()
-    if self.center.y > 240 then
-        self.center.y = 0
-    end
-    if self.center.y < 0 then
-        self.center.y = 240
-    end
-    if self.center.x > 400 then
-        self.center.x = 0
-    end
-    if self.center.x < 0 then
-        self.center.x = 400
-    end
+function Player:move(camera)
+    -- if self.center.y > 240 then
+    --     self.center.y = 0
+    -- end
+    -- if self.center.y < 0 then
+    --     self.center.y = 240
+    -- end
+    -- if self.center.x > 400 then
+    --     self.center.x = 0
+    -- end
+    -- if self.center.x < 0 then
+    --     self.center.x = 400
+    -- end
     if self.velocity:magnitude() > self.maxVelocity then
         self.velocity = self.velocity:normalized() * self.maxVelocity
     end
     self:doGravity()
     self:accelerate()
     self.center = self.center + self.velocity
+    camera:move(self.velocity)
 end
 
-function Player.rotatePoint(px, py, ox, oy, a)
-    local cos_a = math.cos(a)
-    local sin_a = math.sin(a)
-    return cos_a * (px - ox) - sin_a * (py - oy) + ox,
-        sin_a * (px - ox) + cos_a * (py - oy) + oy
+function Player.rotatePoint(px, py, ox, oy, angle)
+    local cos_a = math.cos(angle)
+    local sin_a = math.sin(angle)
+    return pd.geometry.point.new(cos_a * (px - ox) - sin_a * (py - oy) + ox,
+        sin_a * (px - ox) + cos_a * (py - oy) + oy)
 end
 
-function Player.getTrianglePoints(cx, cy, b, h, a)
-    local x1, y1 = Player.rotatePoint(cx, cy - h, cx, cy, a)
-    local x2, y2 = Player.rotatePoint(cx - b / 2, cy + h / 2, cx, cy, a)
-    local x3, y3 = Player.rotatePoint(cx + b / 2, cy + h / 2, cx, cy, a)
-    return x1, y1, x2, y2, x3, y3
+function Player.getTrianglePoints(center, base, height, angle)
+    local point1 = Player.rotatePoint(center.x, center.y - height, center.x, center.y, angle)
+    local point2 = Player.rotatePoint(center.x - base / 2, center.y + height / 2, center.x, center.y, angle)
+    local point3 = Player.rotatePoint(center.x + base / 2, center.y + height / 2, center.x, center.y, angle)
+    return { point1, point2, point3 }
 end
 
 return Player
